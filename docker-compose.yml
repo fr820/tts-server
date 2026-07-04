@@ -1,0 +1,15 @@
+services:
+  tts-server:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      TTS_BACKEND: ${TTS_BACKEND:-mock}
+    # Uncomment for CUDA (requires nvidia-container-toolkit):
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]

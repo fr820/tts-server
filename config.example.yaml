@@ -1,0 +1,16 @@
+server:
+  host: "0.0.0.0"
+  port: 8000
+
+backend:
+  name: "mock"        # mock | qwen3
+  device: "auto"      # auto | cuda | cpu
+  dtype: "bf16"
+  model_path: null     # e.g. "Qwen/Qwen3-TTS"
+  compile: false
+  warmup: true
+
+audio:
+  default_format: "pcm_s16le"
+  sample_rate: 24000
+  channels: 1

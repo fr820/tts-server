@@ -1,0 +1,7 @@
+.venv
+logs
+benchmarks/results
+.git
+__pycache__
+.pytest_cache
+docs
