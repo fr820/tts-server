@@ -14,7 +14,23 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-qwen3 = ["torch>=2.4", "transformers>=4.46", "accelerate>=1.0", "qwen-tts>=0.1.1"]
+# `numba>=0.59` is required because qwen-tts -> librosa -> numba pulls numba
+# transitively; older numba (<0.59) drags in llvmlite versions with no Python
+# 3.12 wheel, so `uv sync --extra qwen3` fails to build llvmlite from source.
+#
+# `torch>=2.4,<2.13` is required because torch 2.13's triton stack references
+# `torch._native.ops.bmm_outer_product.triton_kernels`, which is not shipped by
+# the bundled triton 3.7.x wheel, so qwen-tts generation fails at runtime with
+# `No module named 'torch._native.ops.bmm_outer_product.triton_kernels'`.
+# Verified working: torch 2.12.1+cu130 on the A10. Drop the upper bound only
+# once a torch/triton pair is confirmed compatible with qwen-tts generation.
+qwen3 = [
+    "torch>=2.4,<2.13",
+    "transformers>=4.46",
+    "accelerate>=1.0",
+    "qwen-tts>=0.1.1",
+    "numba>=0.59",
+]
 
 [dependency-groups]
 dev = ["pytest>=8", "pytest-asyncio>=0.24", "httpx>=0.27", "websockets>=13"]

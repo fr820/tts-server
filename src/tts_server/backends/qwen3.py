@@ -1,13 +1,15 @@
 """Qwen3-TTS backend adapter. CUDA-first with CPU fallback.
 
-STATUS: code-complete but UNVERIFIED ON REAL GPU HARDWARE (this machine has
-no GPU and torch is not installed). Streaming output is emulated (full
-synthesis re-sliced); capabilities say so honestly.
+STATUS: VERIFIED on real CUDA hardware (NVIDIA A10, 23 GB, Ampere) on
+2026-07-18 via `scripts/gpu_validate.py`. Real model load, real audio
+output (24 kHz PCM), and concurrency up to 8 in-flight requests were
+exercised end to end. See `benchmarks/results/gpu_validation/` and the
+GPU validation report for numbers. Streaming output remains emulated
+(full synthesis re-sliced); capabilities say so honestly.
 
-Upstream API verified 2026-07-03 via the `qwen-tts` PyPI package (v0.1.1),
-the QwenLM/Qwen3-TTS GitHub README, and Context7 docs for
-`/qwenlm/qwen3-tts`. Model loading and generation go through the
-`qwen_tts.Qwen3TTSModel` class, *not* a generic transformers
+Upstream API verified via the `qwen-tts` PyPI package (v0.1.1) and the
+QwenLM/Qwen3-TTS GitHub README. Model loading and generation go through
+the `qwen_tts.Qwen3TTSModel` class, *not* a generic transformers
 AutoModel/AutoProcessor pair:
 
     from qwen_tts import Qwen3TTSModel
@@ -27,6 +29,18 @@ upstream marketing refers to the server-side OpenAI-compatible HTTP
 wrapper, not this model class). Because of that, `synthesize_stream` is
 NOT overridden here and streaming_mode stays "emulated" -- the base class's
 re-slicing behavior is accurate to what this backend can actually do.
+
+GPU install constraints (see `pyproject.toml` `[qwen3]` extra):
+  * `numba>=0.59` -- qwen-tts -> librosa -> numba pulls numba transitively;
+    older numba drags in llvmlite with no Python 3.12 wheel.
+  * `torch>=2.4,<2.13` -- torch 2.13's triton stack references
+    `torch._native.ops.bmm_outer_product.triton_kernels` (not shipped by
+    the bundled triton), so generation fails at runtime. 2.12.1+cu130 is
+    the verified-good version.
+  * flash-attn is NOT required: without it qwen-tts falls back to a manual
+    PyTorch attention path that works, just slower (observed RTF ~1.5 for
+    ~4.5 s clips in bf16 on the A10 -- above realtime, consistent with the
+    `streaming_mode="emulated"` capability).
 
 Requires: uv sync --extra qwen3
 """
@@ -93,6 +107,14 @@ class Qwen3TTSBackend(TTSBackend):
         )
         self._model = None
         self._device = "cpu"
+        # Serialize inference on the shared model. HuggingFace `generate()` is
+        # not documented thread-safe; on a single GPU concurrent calls only
+        # serialize incidentally (CUDA default stream + GIL) and pile up with
+        # no backpressure (observed: 4 in-flight requests -> ~30s time-to-first
+        # audio). An explicit lock makes queuing deterministic and guarantees no
+        # interleaved mutation of the model's generation state, at zero throughput
+        # cost (CUDA serializes a single device regardless).
+        self._infer_lock = asyncio.Lock()
 
     async def load(self) -> None:
         await asyncio.to_thread(self._load_model)
@@ -168,12 +190,13 @@ class Qwen3TTSBackend(TTSBackend):
     async def synthesize(self, request: TTSRequest) -> TTSResult:
         if not self._loaded:
             raise BackendNotLoadedError("qwen3 backend not loaded")
-        try:
-            pcm, sample_rate = await asyncio.to_thread(self._generate, request)
-        except Exception as exc:
-            if isinstance(exc, SynthesisError):
-                raise
-            raise SynthesisError(f"qwen3 synthesis failed: {exc}") from exc
+        async with self._infer_lock:
+            try:
+                pcm, sample_rate = await asyncio.to_thread(self._generate, request)
+            except Exception as exc:
+                if isinstance(exc, SynthesisError):
+                    raise
+                raise SynthesisError(f"qwen3 synthesis failed: {exc}") from exc
         return TTSResult(audio=pcm, sample_rate=sample_rate)
 
     async def close(self) -> None:
@@ -189,14 +212,21 @@ class Qwen3TTSBackend(TTSBackend):
 
     async def health(self) -> BackendHealth:
         gpu_mb = None
+        gpu_peak_mb = None
         try:
             import torch
 
             if torch.cuda.is_available():
                 gpu_mb = torch.cuda.memory_allocated() / 1e6
+                gpu_peak_mb = torch.cuda.max_memory_allocated() / 1e6
         except ImportError:
             pass
-        return BackendHealth(ok=True, loaded=self._loaded, gpu_memory_mb=gpu_mb)
+        return BackendHealth(
+            ok=True,
+            loaded=self._loaded,
+            gpu_memory_mb=gpu_mb,
+            gpu_memory_peak_mb=gpu_peak_mb,
+        )
 
     def list_voices(self) -> list[VoiceInfo]:
         return [

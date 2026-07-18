@@ -42,7 +42,7 @@ Capability metadata (`TTSCapabilities`) must describe only what the code actuall
 
 ## Backend status caveats
 
-- `Qwen3TTSBackend` is code-complete but **unverified on real GPU hardware** (this machine has no CUDA; torch isn't installed). It uses the `qwen-tts` package's `Qwen3TTSModel.generate_custom_voice()` API — verified against upstream docs, not executed. Its tests run without torch by design (they exercise the missing-dep and not-loaded paths). Keep it importable without torch: heavy imports live inside methods.
+- `Qwen3TTSBackend` is **verified on real CUDA hardware** (NVIDIA A10, 23 GB, bf16, torch 2.12.1+cu130, qwen-tts 0.1.1). It uses the `qwen-tts` package's `Qwen3TTSModel.generate_custom_voice()` API. Reproduce the validation with `uv sync --extra qwen3 && uv run python scripts/gpu_validate.py`; results land in `benchmarks/results/gpu_validation/`. Real-numbers summary: ~4.5 s audio clip in ~7 s (RTF ~1.5, above realtime because output is emulated-streamed and flash-attn is not installed), ~4.2 GB allocated / ~4.4 GB peak VRAM, concurrency-safe to 8 in-flight (serialized by an explicit `_infer_lock`). Install constraints live in the `[qwen3]` extra and matter: `numba>=0.59` (else llvmlite won't build on py3.12) and `torch>=2.4,<2.13` (2.13's triton stack references a `bmm_outer_product.triton_kernels` module it doesn't ship, so generation fails). Its tests still run without torch by design (they exercise the missing-dep and not-loaded paths). Keep it importable without torch: heavy imports live inside methods.
 - `MockBackend` is deterministic (sine PCM keyed on text hash) with configurable pacing via `config.backend.options` — tests and the `client` fixture (`tests/conftest.py`) set delays to zero.
 
 ## Adding a backend

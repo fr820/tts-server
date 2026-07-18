@@ -22,6 +22,7 @@ LATENCY_SECONDS = Histogram(
 )
 RTF = Histogram("tts_rtf", "Real-time factor (synthesis time / audio time)", ["backend"])
 GPU_MEMORY_MB = Gauge("tts_gpu_memory_mb", "Allocated CUDA memory in MB")
+GPU_MEMORY_PEAK_MB = Gauge("tts_gpu_memory_peak_mb", "Peak allocated CUDA memory in MB")
 
 
 def _refresh_gpu_gauge() -> None:
@@ -30,6 +31,7 @@ def _refresh_gpu_gauge() -> None:
 
         if torch.cuda.is_available():
             GPU_MEMORY_MB.set(torch.cuda.memory_allocated() / 1e6)
+            GPU_MEMORY_PEAK_MB.set(torch.cuda.max_memory_allocated() / 1e6)
     except ImportError:
         pass
 

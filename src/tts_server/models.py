@@ -70,3 +70,4 @@ class BackendHealth(BaseModel):
     loaded: bool
     detail: str | None = None
     gpu_memory_mb: float | None = None
+    gpu_memory_peak_mb: float | None = None
