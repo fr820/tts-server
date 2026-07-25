@@ -1,15 +1,30 @@
 services:
   tts-server:
-    build: .
+    build:
+      context: .
+      args:
+        # Set INSTALL_QWEN3=1 (or use docker-compose.gpu.yml) to bake the GPU
+        # stack into the image. Default 0 = mock-only, small/fast build.
+        INSTALL_QWEN3: ${INSTALL_QWEN3:-0}
+    image: tts-server
     ports:
       - "8000:8000"
     environment:
       TTS_BACKEND: ${TTS_BACKEND:-mock}
-    # Uncomment for CUDA (requires nvidia-container-toolkit):
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
+      # HF weights cache lives in the `models` volume (see below); mount path
+      # is fixed by HF_HOME in the Dockerfile. Override HF_ENDPOINT only where
+      # huggingface.co is unreachable (e.g. HF_ENDPOINT=https://hf-mirror.com).
+      HF_ENDPOINT: ${HF_ENDPOINT:-}
+    volumes:
+      - models:/models
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "uv", "run", "--no-sync", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz', timeout=5).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      # qwen3 downloads + loads weights on first start; allow a long grace.
+      start_period: 600s
+
+volumes:
+  models:

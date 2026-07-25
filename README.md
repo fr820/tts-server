@@ -113,30 +113,95 @@ streaming call at this Python API layer — so the base class re-slices the
 full result into chunks. Capabilities report this honestly
 (`streaming_mode: "emulated"`).
 
-## Docker/CUDA instructions
+## Docker / GPU
+
+The image is a CUDA-runtime base that works with **or** without a GPU: the mock
+backend runs with no device attached, and the `qwen3` backend attaches the GPU
+at run time. The qwen3 GPU stack (torch/transformers/qwen-tts) is opt-in at
+**build** time so the mock image stays small and CI-friendly.
+
+### GPU environment setup (host, once)
+
+1. **NVIDIA driver + `nvidia-container-toolkit`.** The container needs the
+   host driver and the toolkit to pass the GPU through. On Debian/Ubuntu:
+
+   ```bash
+   sudo apt-get install -y nvidia-container-toolkit
+   sudo nvidia-ctk runtime configure --runtime=docker   # registers the nvidia runtime
+   sudo systemctl restart docker
+   nvidia-smi                                            # confirm the host sees the GPU
+   sudo docker run --rm --gpus all nvidia/cuda:12.4.1-base-ubuntu22.04 nvidia-smi
+   ```
+
+   The last command must print the GPU from *inside* the container. If it does,
+   Compose's GPU reservation will work.
+
+2. **Docker Hub unreachable?** If `docker pull nvidia/cuda:...` times out, add a
+   registry mirror to `/etc/docker/daemon.json` and restart Docker, or override
+   the base image at build time (`CUDA_IMAGE=nvcr.io/nvidia/cuda:...`). A mirror
+   entry looks like:
+
+   ```jsonc
+   { "registry-mirrors": ["https://docker.m.daocloud.io"] }
+   ```
+
+3. **Hugging Face unreachable?** Model weights download from Hugging Face on
+   first load. Where `huggingface.co` is blocked, point the client at a mirror:
+
+   ```bash
+   export HF_ENDPOINT=https://hf-mirror.com
+   ```
+
+### Build & run
 
 ```bash
-# Build the image (CUDA runtime base; works with or without a GPU attached)
-docker build -t tts-server .
-
-# Run with the mock backend, no GPU required
-docker run --rm -p 8000:8000 tts-server
-
-# Run with the qwen3 backend on a GPU host (requires nvidia-container-toolkit)
-docker run --rm -p 8000:8000 -e TTS_BACKEND=qwen3 --gpus all tts-server
-```
-
-Or via Compose:
-
-```bash
+# Mock backend (no GPU) — the default:
 docker compose up --build
-# TTS_BACKEND=qwen3 docker compose up --build   # to select the qwen3 backend
+curl -sS localhost:8000/v1/audio/speech -H "Content-Type: application/json" \
+  -d '{"input":"hello","response_format":"wav"}' -o hello.wav
 ```
 
-The GPU reservation block in `docker-compose.yml` is commented out by
-default (mock backend needs no GPU); uncomment it, and ensure the host has
-[`nvidia-container-toolkit`](https://github.com/NVIDIA/nvidia-container-toolkit)
-installed, to run the `qwen3` backend under Compose with GPU access.
+GPU path (qwen3) uses a Compose override that bakes in the qwen3 extra,
+selects the backend, and attaches the GPU:
+
+```bash
+HF_ENDPOINT=https://hf-mirror.com \
+  docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build
+```
+
+First start is slow: it downloads the qwen3 wheels at build time (~GBs) and the
+model weights on first load (~3.4 GB into the persisted `models` volume). The
+weights are cached across restarts, so subsequent starts are fast. The
+`/healthz` healthcheck has a long `start_period` to cover the first load.
+
+Equivalent raw `docker` (no Compose):
+
+```bash
+docker build -t tts-server .                                     # mock image
+docker run --rm -p 8000:8000 tts-server                          # mock
+docker build --build-arg INSTALL_QWEN3=1 -t tts-server-qwen3 .   # GPU image
+docker run --rm -p 8000:8000 --gpus all -e TTS_BACKEND=qwen3 \
+  -e HF_ENDPOINT=https://hf-mirror.com tts-server-qwen3
+```
+
+### Testing the GPU path
+
+`scripts/gpu_smoke.py` is a dependency-free (stdlib) end-to-end check against
+the running server: it hits `/healthz` and `/v1/models`, synthesizes real
+speech from text via `/v1/audio/speech`, validates the returned WAV is
+non-silent, and reports latency, GPU memory, and GPU utilization (sampled from
+`nvidia-smi` during synthesis):
+
+```bash
+# against the containerized server on :8000
+python3 scripts/gpu_smoke.py --url http://localhost:8000 --iters 5
+```
+
+It writes a JSON report and a `sample.wav` to `benchmarks/results/gpu_smoke/`.
+For a backend-object-level validation (latency/RTF/concurrency/VRAM without the
+HTTP layer), use `scripts/gpu_validate.py` instead — both target the same
+qwen3 code path. Neither script does speech *recognition* (ASR); they confirm
+the synthesized audio is real, non-silent speech.
 
 ## API examples
 

@@ -1,0 +1,20 @@
+# GPU override: `docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build`
+#
+# Bakes the qwen3 GPU stack into the image (INSTALL_QWEN3=1), selects the
+# qwen3 backend, and attaches the GPU. Requires nvidia-container-toolkit on the
+# host (see README "GPU environment setup"). It only differs from the default
+# mock compose in three places, so mock users never pay for it.
+services:
+  tts-server:
+    build:
+      args:
+        INSTALL_QWEN3: "1"
+    environment:
+      TTS_BACKEND: "qwen3"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
