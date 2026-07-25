@@ -35,6 +35,12 @@ COPY config.example.yaml ./config.yaml
 RUN if [ "$INSTALL_QWEN3" = "1" ]; then QWEN3_FLAG="--extra qwen3"; else QWEN3_FLAG=""; fi \
     && uv sync --frozen --no-dev $QWEN3_FLAG
 
+# `uv` installs Python into /app/.venv/bin but never adds it to PATH, so a bare
+# `python` (or `uvicorn`) isn't resolvable in `docker compose exec` / ad-hoc
+# shells. Put the venv first on PATH. Placed after the heavy `uv sync` so adding
+# it only rebuilds the trivial trailing layers — the torch/dep layers stay cached.
+ENV PATH="/app/.venv/bin:${PATH}"
+
 EXPOSE 8000
 ENV TTS_BACKEND=mock
 CMD ["uv", "run", "--no-sync", "uvicorn", "tts_server.main:app", "--host", "0.0.0.0", "--port", "8000"]
