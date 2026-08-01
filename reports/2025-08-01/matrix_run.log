@@ -9,3 +9,7 @@
 ===== level c=4 2026-08-01T05:40:18Z =====
 [c4] baseline_vram_mb=5807
 [c4] rc=1 wall_s=653 peak_vram_mb=5807
+[c4] committed
+===== level c=8 2026-08-01T05:51:11Z =====
+[c8] baseline_vram_mb=5815
+[c8] rc=1 wall_s=121 peak_vram_mb=5943
