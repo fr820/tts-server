@@ -1,0 +1,27 @@
+{
+  "_selection_rule": "main id numeric suffix % 10 in {2,5,8} -> exactly 18 of 60 (30%); deterministic & reproducible.",
+  "_cancel_semantics": "Server has no explicit cancel message. Cancel = client disconnects mid-stream after cancel_after_ms.",
+  "concurrency": 4,
+  "cancel_ratio": 0.3,
+  "cancel_ids": [
+    "main-002",
+    "main-005",
+    "main-008",
+    "main-012",
+    "main-015",
+    "main-018",
+    "main-022",
+    "main-025",
+    "main-028",
+    "main-032",
+    "main-035",
+    "main-038",
+    "main-042",
+    "main-045",
+    "main-048",
+    "main-052",
+    "main-055",
+    "main-058"
+  ],
+  "cancel_after_ms": 500
+}

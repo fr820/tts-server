@@ -1,0 +1,71 @@
+id,file,word_len,bucket,has_digits,source
+main-001,texts_main.jsonl,41,main,false,harvard
+main-002,texts_main.jsonl,39,main,false,harvard
+main-003,texts_main.jsonl,41,main,false,harvard
+main-004,texts_main.jsonl,38,main,false,harvard
+main-005,texts_main.jsonl,36,main,false,harvard
+main-006,texts_main.jsonl,39,main,false,harvard
+main-007,texts_main.jsonl,36,main,false,harvard
+main-008,texts_main.jsonl,37,main,false,harvard
+main-009,texts_main.jsonl,39,main,false,harvard
+main-010,texts_main.jsonl,38,main,false,harvard
+main-011,texts_main.jsonl,35,main,false,harvard
+main-012,texts_main.jsonl,37,main,false,harvard
+main-013,texts_main.jsonl,41,main,false,harvard
+main-014,texts_main.jsonl,43,main,false,harvard
+main-015,texts_main.jsonl,35,main,false,harvard
+main-016,texts_main.jsonl,39,main,false,harvard
+main-017,texts_main.jsonl,39,main,false,harvard
+main-018,texts_main.jsonl,40,main,false,harvard
+main-019,texts_main.jsonl,41,main,false,harvard
+main-020,texts_main.jsonl,37,main,false,harvard
+main-021,texts_main.jsonl,36,main,false,harvard
+main-022,texts_main.jsonl,37,main,false,harvard
+main-023,texts_main.jsonl,40,main,false,harvard
+main-024,texts_main.jsonl,39,main,false,harvard
+main-025,texts_main.jsonl,46,main,false,ljspeech
+main-026,texts_main.jsonl,55,main,false,ljspeech
+main-027,texts_main.jsonl,40,main,false,ljspeech
+main-028,texts_main.jsonl,55,main,false,ljspeech
+main-029,texts_main.jsonl,35,main,false,ljspeech
+main-030,texts_main.jsonl,35,main,false,ljspeech
+main-031,texts_main.jsonl,49,main,false,ljspeech
+main-032,texts_main.jsonl,38,main,false,ljspeech
+main-033,texts_main.jsonl,50,main,false,ljspeech
+main-034,texts_main.jsonl,51,main,false,ljspeech
+main-035,texts_main.jsonl,37,main,false,ljspeech
+main-036,texts_main.jsonl,51,main,false,ljspeech
+main-037,texts_main.jsonl,36,main,false,ljspeech
+main-038,texts_main.jsonl,49,main,false,ljspeech
+main-039,texts_main.jsonl,37,main,false,ljspeech
+main-040,texts_main.jsonl,54,main,false,ljspeech
+main-041,texts_main.jsonl,44,main,false,ljspeech
+main-042,texts_main.jsonl,40,main,false,ljspeech
+main-043,texts_main.jsonl,39,main,true,ljspeech
+main-044,texts_main.jsonl,42,main,true,ljspeech
+main-045,texts_main.jsonl,42,main,true,ljspeech
+main-046,texts_main.jsonl,43,main,true,ljspeech
+main-047,texts_main.jsonl,53,main,true,ljspeech
+main-048,texts_main.jsonl,51,main,true,ljspeech
+main-049,texts_main.jsonl,53,main,true,ljspeech
+main-050,texts_main.jsonl,37,main,true,ljspeech
+main-051,texts_main.jsonl,50,main,true,ljspeech
+main-052,texts_main.jsonl,36,main,true,ljspeech
+main-053,texts_main.jsonl,50,main,true,ljspeech
+main-054,texts_main.jsonl,47,main,true,ljspeech
+main-055,texts_main.jsonl,38,main,true,ljspeech
+main-056,texts_main.jsonl,49,main,true,ljspeech
+main-057,texts_main.jsonl,38,main,false,harvard
+main-058,texts_main.jsonl,41,main,false,harvard
+main-059,texts_main.jsonl,36,main,false,harvard
+main-060,texts_main.jsonl,42,main,false,harvard
+long-001,texts_long.jsonl,344,long,true,"A Short History of the World (Project Gutenberg #35461, 1922, public domain)"
+long-002,texts_long.jsonl,349,long,true,"A Short History of the World (Project Gutenberg #35461, 1922, public domain)"
+long-003,texts_long.jsonl,345,long,true,"A Short History of the World (Project Gutenberg #35461, 1922, public domain)"
+long-004,texts_long.jsonl,334,long,true,"A Short History of the World (Project Gutenberg #35461, 1922, public domain)"
+long-005,texts_long.jsonl,315,long,true,"A Short History of the World (Project Gutenberg #35461, 1922, public domain)"
+long-006,texts_long.jsonl,335,long,true,"A Short History of the World (Project Gutenberg #35461, 1922, public domain)"
+long-007,texts_long.jsonl,333,long,true,"A Short History of the World (Project Gutenberg #35461, 1922, public domain)"
+long-008,texts_long.jsonl,348,long,true,"A Short History of the World (Project Gutenberg #35461, 1922, public domain)"
+long-009,texts_long.jsonl,347,long,true,"A Short History of the World (Project Gutenberg #35461, 1922, public domain)"
+long-010,texts_long.jsonl,344,long,true,"A Short History of the World (Project Gutenberg #35461, 1922, public domain)"
