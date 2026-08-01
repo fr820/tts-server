@@ -4,8 +4,8 @@ nvidia-smi monitor CSVs. Run after the matrix completes:
 
     uv run python scripts/summarize_bench.py
 
-Reads reports/2025-08-01/http-qwen3-c{1,2,4,8}.json + gpu_monitor/http_c*.csv,
-prints a markdown table, and writes reports/2025-08-01/SUMMARY.md.
+Reads reports/2026-08-01/http-qwen3-c{1,2,4,8}.json + gpu_monitor/http_c*.csv,
+prints a markdown table, and writes reports/2026-08-01/SUMMARY.md.
 """
 from __future__ import annotations
 

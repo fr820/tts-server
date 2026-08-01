@@ -6,7 +6,7 @@
 set -uo pipefail
 cd /home/ecs-user/tts-server
 export HF_ENDPOINT=https://hf-mirror.com
-OUT=reports/2025-08-01
+OUT=reports/2026-08-01
 MARKER="$OUT/FINALIZE_DONE"
 LOG="$OUT/finalize.log"
 : > "$LOG"
@@ -54,7 +54,7 @@ log "building summary..."
 uv run python scripts/summarize_bench.py > "$OUT/summary.stdout.log" 2>&1 || log "summarize non-zero"
 
 log "committing + pushing..."
-git add reports/2025-08-01 scripts/run_http_matrix.sh scripts/summarize_bench.py scripts/finalize_bench.sh
+git add reports/2026-08-01 scripts/run_http_matrix.sh scripts/summarize_bench.py scripts/finalize_bench.sh
 git commit -m "bench(qwen3): stress + env + summary for 2025-08-01 run" \
     -m "Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>" >/dev/null 2>&1 && log "committed" || log "nothing new to commit"
 git push origin main > "$OUT/push.log" 2>&1 && log "PUSH OK" || log "PUSH FAILED (see push.log)"

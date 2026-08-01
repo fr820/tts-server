@@ -7,7 +7,7 @@ set -uo pipefail
 cd /home/ecs-user/tts-server
 export HF_ENDPOINT=https://hf-mirror.com
 
-OUT=reports/2025-08-01
+OUT=reports/2026-08-01
 mkdir -p "$OUT/gpu_monitor"
 PROG="$OUT/matrix_progress.txt"
 : > "$PROG"
@@ -44,7 +44,7 @@ for C in 1 2 4 8; do
     sleep 5
   done
 
-  git add reports/2025-08-01 >/dev/null 2>&1
+  git add reports/2026-08-01 >/dev/null 2>&1
   git commit -m "bench(qwen3): http matrix c=$C (50 req, bench-text-v1-en)" \
       -m "Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>" >/dev/null 2>&1 \
       && echo "[c$C] committed" | tee -a "$PROG" || echo "[c$C] nothing to commit" | tee -a "$PROG"
