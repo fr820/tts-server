@@ -1,0 +1,11 @@
+# Benchmark: http — backend `qwen3`
+
+- requests: 50, concurrency: 4
+- failures: 13
+- throughput: 0.03 req/s
+
+| metric | p50 | p90 | p95 | mean |
+|---|---|---|---|---|
+| ttfa_ms | 97058.56 | 116292.32 | 117477.23 | 96972.20 |
+| latency_ms | 97068.63 | 116303.39 | 117486.10 | 96981.59 |
+| rtf | 5.82 | 7.16 | 7.55 | 5.82 |

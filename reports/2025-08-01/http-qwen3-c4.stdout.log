@@ -1,25 +1,26 @@
+request failed: HTTPError('empty response body (no audio received)')
 request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
 request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
 request failed: ReadError('')
-Traceback (most recent call last):
-  File "/home/ecs-user/tts-server/benchmarks/bench_http.py", line 148, in <module>
-    main()
-  File "/home/ecs-user/tts-server/benchmarks/bench_http.py", line 144, in main
-    asyncio.run(run(parser.parse_args()))
-  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
-    return runner.run(main)
-           ^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
-    return self._loop.run_until_complete(task)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
-    return future.result()
-           ^^^^^^^^^^^^^^^
-  File "/home/ecs-user/tts-server/benchmarks/bench_http.py", line 100, in run
-    await asyncio.gather(*(bounded(client, i) for i in range(args.requests)))
-  File "/home/ecs-user/tts-server/benchmarks/bench_http.py", line 92, in bounded
-    await one_request(client, url, text, args.sample_rate)
-  File "/home/ecs-user/tts-server/benchmarks/bench_http.py", line 74, in one_request
-    "ttfa_ms": ttfa * 1000,
-               ~~~~~^~~~~~
-TypeError: unsupported operand type(s) for *: 'NoneType' and 'int'
+request failed: HTTPError('empty response body (no audio received)')
+request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: HTTPError('empty response body (no audio received)')
+# Benchmark: http — backend `qwen3`
+
+- requests: 50, concurrency: 4
+- failures: 13
+- throughput: 0.03 req/s
+
+| metric | p50 | p90 | p95 | mean |
+|---|---|---|---|---|
+| ttfa_ms | 97058.56 | 116292.32 | 117477.23 | 96972.20 |
+| latency_ms | 97068.63 | 116303.39 | 117486.10 | 96981.59 |
+| rtf | 5.82 | 7.16 | 7.55 | 5.82 |
+
+saved: reports/2025-08-01/http-qwen3-c4.json and reports/2025-08-01/http-qwen3-c4.md

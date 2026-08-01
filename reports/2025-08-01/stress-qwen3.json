@@ -1,0 +1,88 @@
+{
+  "bench": "stress",
+  "backend": "qwen3",
+  "url": "http://localhost:8000",
+  "client_timeout_s": 180.0,
+  "levels": [
+    {
+      "name": "L1:escalate",
+      "concurrency": 1,
+      "requests": 50,
+      "ok": 50,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "throughput_rps": 0.108,
+      "latency_ms": {
+        "p50": 8491,
+        "p95": 16760,
+        "p99": null
+      },
+      "ttfa_ms": {
+        "p95": 16756,
+        "p99": null
+      },
+      "gpu_peak_mb_after": null
+    },
+    {
+      "name": "L2:escalate",
+      "concurrency": 2,
+      "requests": 50,
+      "ok": 50,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "throughput_rps": 0.11,
+      "latency_ms": {
+        "p50": 17212,
+        "p95": 24482,
+        "p99": null
+      },
+      "ttfa_ms": {
+        "p95": 24478,
+        "p99": null
+      },
+      "gpu_peak_mb_after": null
+    },
+    {
+      "name": "L3:escalate",
+      "concurrency": 4,
+      "requests": 50,
+      "ok": 50,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "throughput_rps": 0.105,
+      "latency_ms": {
+        "p50": 35876,
+        "p95": 50727,
+        "p99": null
+      },
+      "ttfa_ms": {
+        "p95": 50722,
+        "p99": null
+      },
+      "gpu_peak_mb_after": null
+    },
+    {
+      "name": "L4:escalate",
+      "concurrency": 8,
+      "requests": 50,
+      "ok": 50,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "throughput_rps": 0.108,
+      "latency_ms": {
+        "p50": 73509,
+        "p95": 80835,
+        "p99": null
+      },
+      "ttfa_ms": {
+        "p95": 80832,
+        "p99": null
+      },
+      "gpu_peak_mb_after": null
+    }
+  ],
+  "gpu_peak_mb_start": null,
+  "gpu_peak_mb_end": null,
+  "gpu_growth_mb": null,
+  "note": "Reconstructed from stress.stdout.log (the in-process run completed all 4 levels; bench_stress crashed at write_results(KeyError 'concurrency') BEFORE saving, so this JSON is rebuilt from the printed per-level table). Text = bench_stress DEFAULT short text (~75 bytes), NOT bench-text-v1-en. p99 unavailable for stress (stdout table carries p50/p95/ttfa-p95 only)."
+}
