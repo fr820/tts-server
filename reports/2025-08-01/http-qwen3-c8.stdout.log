@@ -1,29 +1,58 @@
+request failed: HTTPError('empty response body (no audio received)')
+request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: HTTPError('empty response body (no audio received)')
 request failed: ReadError('')
 request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: HTTPError('empty response body (no audio received)')
 request failed: ReadError('')
 request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: ReadError('')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: HTTPError('empty response body (no audio received)')
 request failed: ReadError('')
 request failed: ReadError('')
-request failed: ReadError('')
-Traceback (most recent call last):
-  File "/home/ecs-user/tts-server/benchmarks/bench_http.py", line 148, in <module>
-    main()
-  File "/home/ecs-user/tts-server/benchmarks/bench_http.py", line 144, in main
-    asyncio.run(run(parser.parse_args()))
-  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
-    return runner.run(main)
-           ^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
-    return self._loop.run_until_complete(task)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
-    return future.result()
-           ^^^^^^^^^^^^^^^
-  File "/home/ecs-user/tts-server/benchmarks/bench_http.py", line 100, in run
-    await asyncio.gather(*(bounded(client, i) for i in range(args.requests)))
-  File "/home/ecs-user/tts-server/benchmarks/bench_http.py", line 92, in bounded
-    await one_request(client, url, text, args.sample_rate)
-  File "/home/ecs-user/tts-server/benchmarks/bench_http.py", line 74, in one_request
-    "ttfa_ms": ttfa * 1000,
-               ~~~~~^~~~~~
-TypeError: unsupported operand type(s) for *: 'NoneType' and 'int'
+request failed: HTTPError('empty response body (no audio received)')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: HTTPError('empty response body (no audio received)')
+request failed: HTTPError('empty response body (no audio received)')
+# Benchmark: http — backend `qwen3`
+
+- requests: 50, concurrency: 8
+- failures: 45
+- throughput: 0.01 req/s
+
+| metric | p50 | p90 | p95 | mean |
+|---|---|---|---|---|
+| ttfa_ms | 66510.28 | 105053.23 | 110210.88 | 68020.76 |
+| latency_ms | 66522.51 | 105061.12 | 110218.78 | 68029.08 |
+| rtf | 4.57 | 6.35 | 6.56 | 4.38 |
+
+saved: reports/2025-08-01/http-qwen3-c8.json and reports/2025-08-01/http-qwen3-c8.md
