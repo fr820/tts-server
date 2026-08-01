@@ -1,0 +1,27 @@
+target=http://localhost:8000  text_bytes=75  client_timeout=180.0s
+level                    C    N   ok  fail     rps   lat p50   lat p95  ttfa p95
+------------------------------------------------------------------------------------------
+L1:escalate              1   50   50     0   0.108     8491ms    16760ms    16756ms
+L2:escalate              2   50   50     0   0.110    17212ms    24482ms    24478ms
+L3:escalate              4   50   50     0   0.105    35876ms    50727ms    50722ms
+L4:escalate              8   50   50     0   0.108    73509ms    80835ms    80832ms
+Traceback (most recent call last):
+  File "/home/ecs-user/tts-server/benchmarks/bench_stress.py", line 218, in <module>
+    sys.exit(asyncio.run(main(_parse_args())))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/ecs-user/tts-server/benchmarks/bench_stress.py", line 170, in main
+    json_path, md_path = write_results(summary)
+                         ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ecs-user/tts-server/benchmarks/common.py", line 53, in write_results
+    name = f"{results['bench']}-{results['backend']}-c{results['concurrency']}"
+                                                       ~~~~~~~^^^^^^^^^^^^^^^
+KeyError: 'concurrency'

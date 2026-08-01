@@ -13,3 +13,6 @@
 ===== level c=8 2026-08-01T05:51:11Z =====
 [c8] baseline_vram_mb=5815
 [c8] rc=1 wall_s=121 peak_vram_mb=5943
+[c8] committed
+matrix done 2026-08-01T05:53:12Z
+MATRIX_RUN_COMPLETE

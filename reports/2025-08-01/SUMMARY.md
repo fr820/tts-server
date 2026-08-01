@@ -1,0 +1,16 @@
+# HTTP concurrency matrix — backend `qwen3`, dataset `bench-text-v1-en`
+
+Per level: 50 requests, texts rotated from texts_main.jsonl (35–55 words). Client timeout 180s > server request_timeout 120s, so 504s are server-originated capacity signals (recorded as failures), not client cutoffs.
+
+| c | ok | fail | err% | rps | lat p50 | lat p95 | lat p99 | ttfa p50 | ttfa p95 | peak VRAM |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | 50 | 0 | 0.0 | 0.04 | 25297ms | 37383ms | 39139ms | 25290ms | 37368ms | n/a |
+| 2 | 50 | 0 | 0.0 | 0.04 | 53420ms | 73824ms | 80590ms | 53410ms | 73805ms | n/a |
+| 4 | - | - | - | - | _missing_ | | | | | |
+| 8 | - | - | - | - | _missing_ | | | | | |
+
+## gpu_smoke (real-audio sanity)
+
+- speech: 195884B sr=24000 dur=4.08s peak=12479 rms=2172.7
+- warm p50=7539ms p95=8032ms RTF p50=1.497 (budget 30.0s)
+- summary: 6 PASS / 0 FAIL out of 6 checks
