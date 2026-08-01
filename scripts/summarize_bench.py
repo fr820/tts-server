@@ -15,7 +15,7 @@ import statistics
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "reports" / "2025-08-01"
+OUT = ROOT / "reports" / "2026-08-01"
 LEVELS = [1, 2, 4, 8]
 
 

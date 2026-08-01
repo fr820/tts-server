@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Auto-finalize the 2025-08-01 qwen3 benchmark once the HTTP matrix finishes.
+# Auto-finalize the 2026-08-01 qwen3 benchmark once the HTTP matrix finishes.
 # Waits for 'matrix done', then runs bench_stress, writes env.txt, builds the
 # summary, commits + pushes, and drops a FINALIZE_DONE marker. Runs in tmux so
 # it completes autonomously (SSH-drop / Claude-restart safe).
@@ -55,7 +55,7 @@ uv run python scripts/summarize_bench.py > "$OUT/summary.stdout.log" 2>&1 || log
 
 log "committing + pushing..."
 git add reports/2026-08-01 scripts/run_http_matrix.sh scripts/summarize_bench.py scripts/finalize_bench.sh
-git commit -m "bench(qwen3): stress + env + summary for 2025-08-01 run" \
+git commit -m "bench(qwen3): stress + env + summary for 2026-08-01 run" \
     -m "Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>" >/dev/null 2>&1 && log "committed" || log "nothing new to commit"
 git push origin main > "$OUT/push.log" 2>&1 && log "PUSH OK" || log "PUSH FAILED (see push.log)"
 
