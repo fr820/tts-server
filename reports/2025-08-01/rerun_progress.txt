@@ -4,3 +4,5 @@ rerun start 2026-08-01T06:28:22Z
 [c4] committed
 ===== rerun c=8 2026-08-01T06:48:07Z =====
 [c8] rc=0 wall_s=480 peak_vram_mb=6415 json_written=yes baseline=5943
+[c8] committed
+rerun done 2026-08-01T06:58:38Z

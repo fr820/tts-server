@@ -4,10 +4,19 @@ Per level: 50 requests, texts rotated from texts_main.jsonl (35–55 words). Cli
 
 | c | ok | fail | err% | rps | lat p50 | lat p95 | lat p99 | ttfa p50 | ttfa p95 | peak VRAM |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 1 | 50 | 0 | 0.0 | 0.04 | 25297ms | 37383ms | 39139ms | 25290ms | 37368ms | n/a |
-| 2 | 50 | 0 | 0.0 | 0.04 | 53420ms | 73824ms | 80590ms | 53410ms | 73805ms | n/a |
-| 4 | - | - | - | - | _missing_ | | | | | |
-| 8 | - | - | - | - | _missing_ | | | | | |
+| 1 | 50 | 0 | 0.0 | 0.04 | 25297ms | 37383ms | 39139ms | 25290ms | 37368ms | 5785MB |
+| 2 | 50 | 0 | 0.0 | 0.04 | 53420ms | 73824ms | 80590ms | 53410ms | 73805ms | 5807MB |
+| 4 | 37 | 13 | 26.0 | 0.03 | 97069ms | 117486ms | 119587ms | 97059ms | 117477ms | 5943MB |
+| 8 | 5 | 45 | 90.0 | 0.01 | 66523ms | 110219ms | 114345ms | 66510ms | 110211ms | 6415MB |
+
+## bench_stress (1:50,2:50,4:50,8:50, timeout 180s)
+
+| level | c | n | ok | fail | err% | rps | lat p50 | lat p95 | lat p99 | gpu_peak_after MB |
+|---|---|---|---|---|---|---|---|---|---|---|
+| L1:escalate | 1 | 50 | 50 | 0 | 0.0 | 0.108 | 8491ms | 16760ms | n/a | n/a |
+| L2:escalate | 2 | 50 | 50 | 0 | 0.0 | 0.11 | 17212ms | 24482ms | n/a | n/a |
+| L3:escalate | 4 | 50 | 50 | 0 | 0.0 | 0.105 | 35876ms | 50727ms | n/a | n/a |
+| L4:escalate | 8 | 50 | 50 | 0 | 0.0 | 0.108 | 73509ms | 80835ms | n/a | n/a |
 
 ## gpu_smoke (real-audio sanity)
 
