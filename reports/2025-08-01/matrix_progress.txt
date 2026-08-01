@@ -2,3 +2,7 @@ matrix start 2026-08-01T04:54:32Z
 ===== level c=1 2026-08-01T04:54:32Z =====
 [c1] baseline_vram_mb=5781
 [c1] rc=0 wall_s=1358 peak_vram_mb=5785
+[c1] committed
+===== level c=2 2026-08-01T05:17:10Z =====
+[c2] baseline_vram_mb=5785
+[c2] rc=0 wall_s=1388 peak_vram_mb=5807
