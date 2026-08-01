@@ -27,7 +27,7 @@ def peak_vram_mb(csv_path: Path) -> float | None:
         for row in csv.reader(f):
             if len(row) < 2:
                 continue
-            m = row[1].strip().strip('"').strip()
+            m = row[1].strip().strip('"').strip().split()[0]  # "5781 MiB" -> "5781"
             try:
                 mx = max(mx, float(m))
             except ValueError:

@@ -68,6 +68,11 @@ async def one_request(
             if ttfa is None and chunk:
                 ttfa = time.perf_counter() - start
             audio_bytes += len(chunk)
+    if ttfa is None:
+        # 200 OK but zero audio bytes arrived (server returned an empty body
+        # under load, e.g. a request cancelled mid-flight after the headers).
+        # Count it as a failure instead of crashing on ttfa * 1000.
+        raise httpx.HTTPError("empty response body (no audio received)")
     elapsed = time.perf_counter() - start
     audio_s = audio_bytes / (2 * sample_rate)
     return {
