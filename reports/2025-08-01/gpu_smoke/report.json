@@ -1,0 +1,95 @@
+{
+  "args": {
+    "url": "http://localhost:8000",
+    "text": "The quick brown fox jumps over the lazy dog. Welcome aboard.",
+    "iters": 5,
+    "sample_interval_ms": 200,
+    "latency_budget_s": 30.0
+  },
+  "checks": [
+    {
+      "check": "device",
+      "status": "PASS",
+      "detail": "nvidia-smi: NVIDIA A10, 23028, 580.126.09",
+      "device": "NVIDIA A10, 23028, 580.126.09"
+    },
+    {
+      "check": "health",
+      "status": "PASS",
+      "detail": "status=ok backend=qwen3 loaded=True gpu_mem=4187MB",
+      "backend": "qwen3",
+      "loaded": true,
+      "gpu_memory_mb": 4187.098112,
+      "gpu_memory_peak_mb": 4226.208768
+    },
+    {
+      "check": "models",
+      "status": "PASS",
+      "detail": "models=['qwen3']",
+      "models": [
+        "qwen3"
+      ]
+    },
+    {
+      "check": "speech",
+      "status": "PASS",
+      "detail": "195884B sr=24000 dur=4.08s peak=12479 rms=2172.7",
+      "latency_ms": 6142.0,
+      "sample_rate": 24000,
+      "samples": 97920,
+      "channels": 1,
+      "sampwidth": 2,
+      "duration_s": 4.08,
+      "peak": 12479,
+      "rms": 2172.7,
+      "peak_ratio": 0.3808
+    },
+    {
+      "check": "latency",
+      "status": "PASS",
+      "detail": "warm p50=7539ms p95=8032ms RTF p50=1.497 (budget 30.0s)",
+      "latency_ms": {
+        "p50": 7538.9,
+        "p90": 8024.3,
+        "p95": 8031.8,
+        "mean": 7574.1,
+        "min": 6825.7,
+        "max": 8039.3
+      },
+      "rtf": {
+        "p50": 1.497,
+        "p90": 1.503,
+        "p95": 1.504,
+        "mean": 1.498,
+        "min": 1.493,
+        "max": 1.505
+      }
+    },
+    {
+      "check": "gpu_util",
+      "status": "PASS",
+      "detail": "util p50=29% peak=40% | dev mem used p50=4517MB peak=4517MB (over 172 samples)",
+      "utilization_pct": {
+        "p50": 29.0,
+        "p90": 29.0,
+        "p95": 29.0,
+        "mean": 28.3,
+        "min": 25.0,
+        "max": 40.0
+      },
+      "device_memory_used_mb": {
+        "p50": 4517.0,
+        "p90": 4517.0,
+        "p95": 4517.0,
+        "mean": 4508.3,
+        "min": 4471.0,
+        "max": 4517.0
+      },
+      "samples": 172
+    }
+  ],
+  "artifacts": {
+    "wav": "benchmarks/results/gpu_smoke/sample.wav"
+  },
+  "summary": "6 PASS / 0 FAIL out of 6 checks"
+}
