@@ -6,9 +6,14 @@ backend:
   name: "mock"        # mock | qwen3
   device: "auto"      # auto | cuda | cpu
   dtype: "bf16"
-  model_path: null     # e.g. "Qwen/Qwen3-TTS"
+  model_path: null     # default: Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice (realtime-first)
   compile: false
   warmup: true
+  options:
+    # qwen3: fast sub-talker decode (CUDA-graphed). false = stock qwen-tts
+    # path (RTF p90 1.47 vs 0.58 on A10, see reports/2026-08-20/).
+    fast_subtalker: true
+    subtalker_greedy: false   # true = deterministic argmax sub-talker decode
 
 audio:
   default_format: "pcm_s16le"

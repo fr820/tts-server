@@ -1,0 +1,20 @@
+# HELP tts_active_sessions In-flight TTS sessions
+# TYPE tts_active_sessions gauge
+tts_active_sessions 0.0
+tts_rtf_bucket{backend="qwen3",le="0.005"} 0.0
+tts_rtf_bucket{backend="qwen3",le="0.01"} 0.0
+tts_rtf_bucket{backend="qwen3",le="0.025"} 0.0
+tts_rtf_bucket{backend="qwen3",le="0.05"} 0.0
+tts_rtf_bucket{backend="qwen3",le="0.075"} 0.0
+tts_rtf_bucket{backend="qwen3",le="0.1"} 0.0
+tts_rtf_bucket{backend="qwen3",le="0.25"} 0.0
+tts_rtf_bucket{backend="qwen3",le="0.5"} 0.0
+tts_rtf_bucket{backend="qwen3",le="0.75"} 4.0
+tts_rtf_bucket{backend="qwen3",le="1.0"} 5.0
+tts_rtf_bucket{backend="qwen3",le="2.5"} 27.0
+tts_rtf_bucket{backend="qwen3",le="5.0"} 27.0
+tts_rtf_bucket{backend="qwen3",le="7.5"} 27.0
+tts_rtf_bucket{backend="qwen3",le="10.0"} 27.0
+tts_rtf_bucket{backend="qwen3",le="+Inf"} 27.0
+tts_rtf_count{backend="qwen3"} 27.0
+tts_rtf_sum{backend="qwen3"} 29.36648742839895

@@ -1,0 +1,13 @@
+# Benchmark: http — backend `qwen3`
+
+- requests: 24, concurrency: 2
+- failures: 0
+- throughput: 0.12 req/s
+
+| metric | p50 | p90 | p95 | mean |
+|---|---|---|---|---|
+| ttfa_ms | 16441.83 | 17556.17 | 18646.71 | 16168.84 |
+| latency_ms | 16451.71 | 17562.99 | 18654.09 | 16176.23 |
+| rtf | 1.14 | 1.24 | 1.28 | 1.12 |
+
+saved: reports/2026-08-20/model-cmp/0.6b/c2/http-qwen3-c2.json and reports/2026-08-20/model-cmp/0.6b/c2/http-qwen3-c2.md
