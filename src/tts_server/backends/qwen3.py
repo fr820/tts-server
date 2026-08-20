@@ -1,11 +1,15 @@
 """Qwen3-TTS backend adapter. CUDA-first with CPU fallback.
 
-STATUS: VERIFIED on real CUDA hardware (NVIDIA A10, 23 GB, Ampere) on
-2026-07-18 via `scripts/gpu_validate.py`. Real model load, real audio
-output (24 kHz PCM), and concurrency up to 8 in-flight requests were
-exercised end to end. See `benchmarks/results/gpu_validation/` and the
-GPU validation report for numbers. Streaming output remains emulated
-(full synthesis re-sliced); capabilities say so honestly.
+Default model is the 0.6B CustomVoice variant, chosen for realtime use
+(smallest talker that still covers the 10 major languages). The 1.7B
+CustomVoice variant can be selected via `backend.model_path` — it also
+honors `instruct` style control, which 0b6 models ignore (the
+emotion/style capability is adjusted per loaded model accordingly).
+
+STATUS: exercised on real CUDA hardware (NVIDIA A10, Ampere) via
+`scripts/gpu_validate.py`; see `benchmarks/results/gpu_validation/` for
+the latest real run. Streaming output remains emulated (full synthesis
+re-sliced); capabilities say so honestly.
 
 Upstream API verified via the `qwen-tts` PyPI package (v0.1.1) and the
 QwenLM/Qwen3-TTS GitHub README. Model loading and generation go through
@@ -14,7 +18,7 @@ AutoModel/AutoProcessor pair:
 
     from qwen_tts import Qwen3TTSModel
     model = Qwen3TTSModel.from_pretrained(
-        "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
         device_map="cuda:0", dtype=torch.bfloat16,
     )
     wavs, sr = model.generate_custom_voice(
@@ -38,9 +42,11 @@ GPU install constraints (see `pyproject.toml` `[qwen3]` extra):
     the bundled triton), so generation fails at runtime. 2.12.1+cu130 is
     the verified-good version.
   * flash-attn is NOT required: without it qwen-tts falls back to a manual
-    PyTorch attention path that works, just slower (observed RTF ~1.5 for
-    ~4.5 s clips in bf16 on the A10 -- above realtime, consistent with the
-    `streaming_mode="emulated"` capability).
+    PyTorch attention path that works, just slower. Measured on the A10
+    (2026-08-20, see `reports/2026-08-20/`): stock qwen-tts path RTF p90
+    1.47 (host-bound on the nested code-predictor generate, ~24% GPU
+    util); with the default `fast_subtalker` patch (CUDA-graphed sub-talker,
+    `qwen3_fast.py`) RTF p90 0.58 at 46% util — realtime, same semantics.
 
 Requires: uv sync --extra qwen3
 """
@@ -63,7 +69,7 @@ from tts_server.models import (
 
 logger = logging.getLogger("tts_server.backends.qwen3")
 
-_DEFAULT_MODEL = "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice"
+_DEFAULT_MODEL = "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice"
 _DEFAULT_SPEAKER = "Vivian"
 _DEFAULT_LANGUAGE = "English"
 _INSTALL_HINT = "Qwen3 dependencies missing; install with: uv sync --extra qwen3"
@@ -105,8 +111,21 @@ class Qwen3TTSBackend(TTSBackend):
         self._default_language = config.backend.options.get(
             "language", _DEFAULT_LANGUAGE
         )
+        # Perf: replace qwen-tts's nested per-frame HF generate() on the code
+        # predictor with a lean KV-cached loop (see qwen3_fast.py for the
+        # measurements). Kill-switch for A-B benchmarking.
+        self._fast_subtalker = config.backend.options.get("fast_subtalker", True)
+        self._subtalker_greedy = config.backend.options.get("subtalker_greedy", False)
         self._model = None
         self._device = "cpu"
+        # Honesty rule: the 0.6B CustomVoice model ignores `instruct`
+        # (qwen-tts drops style instructions for 0b6 models), so the
+        # emotion/style capability is only true for the 1.7B variant.
+        # Resolved per loaded model in load().
+        if "0.6b" in self._model_path.lower() or "0b6" in self._model_path.lower():
+            caps = self.capabilities.model_copy()
+            caps.supports_emotion_or_style_control = False
+            self.capabilities = caps
         # Serialize inference on the shared model. HuggingFace `generate()` is
         # not documented thread-safe; on a single GPU concurrent calls only
         # serialize incidentally (CUDA default stream + GIL) and pile up with
@@ -119,7 +138,13 @@ class Qwen3TTSBackend(TTSBackend):
     async def load(self) -> None:
         await asyncio.to_thread(self._load_model)
         self._loaded = True
-        logger.info("qwen3 loaded on %s (dtype=%s)", self._device, self._dtype_name)
+        logger.info(
+            "qwen3 loaded on %s (dtype=%s, fast_subtalker=%s, greedy=%s)",
+            self._device,
+            self._dtype_name,
+            self._fast_subtalker,
+            self._subtalker_greedy,
+        )
 
     def _load_model(self) -> None:
         try:
@@ -152,6 +177,22 @@ class Qwen3TTSBackend(TTSBackend):
             device_map=device_map,
             dtype=dtype,
         )
+        if self._fast_subtalker:
+            try:
+                from tts_server.backends.qwen3_fast import patch_code_predictor
+
+                patch_code_predictor(
+                    self._model.model.talker.code_predictor,
+                    greedy=self._subtalker_greedy,
+                )
+            except AttributeError:
+                # qwen-tts internals moved (version drift): stay on the stock,
+                # slower path rather than failing to load.
+                logger.warning(
+                    "qwen3: fast sub-talker patch did not apply "
+                    "(qwen-tts internals changed?); using stock path",
+                    exc_info=True,
+                )
         if self._compile:
             try:
                 self._model = torch.compile(self._model)
@@ -229,6 +270,17 @@ class Qwen3TTSBackend(TTSBackend):
         )
 
     def list_voices(self) -> list[VoiceInfo]:
+        # After load, report the model's real speaker table (case-insensitive
+        # upstream); before load, a known-valid subset of the default model.
+        if self._model is not None:
+            try:
+                spk = self._model.model.config.talker_config.spk_id
+                return [
+                    VoiceInfo(id=name.title(), name=name.title(), languages=_SUPPORTED_LANGUAGES)
+                    for name in sorted(spk)
+                ]
+            except AttributeError:
+                pass
         return [
             VoiceInfo(id="Vivian", name="Vivian", languages=_SUPPORTED_LANGUAGES),
             VoiceInfo(id="Ryan", name="Ryan", languages=_SUPPORTED_LANGUAGES),

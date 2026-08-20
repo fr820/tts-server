@@ -40,6 +40,19 @@ def test_capabilities_are_honest():
     assert caps.supports_cuda is True
 
 
+def test_0b6_default_drops_instruct_capability():
+    """0b6 models ignore `instruct` (qwen-tts drops it), so the emotion/style
+    capability must be False for the 0.6B default and True for 1.7B."""
+    from tts_server.backends.qwen3 import Qwen3TTSBackend
+
+    default_caps = Qwen3TTSBackend(make_config()).capabilities
+    assert default_caps.supports_emotion_or_style_control is False
+    caps_17b = Qwen3TTSBackend(
+        make_config(model_path="Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice")
+    ).capabilities
+    assert caps_17b.supports_emotion_or_style_control is True
+
+
 async def test_synthesize_before_load_raises():
     from tts_server.backends.qwen3 import Qwen3TTSBackend
 
