@@ -77,3 +77,7 @@ uv run python scripts/gpu_smoke.py --iters 8    # 真音频 + GPU 采样
 - 0.6B 不支持 instruct → `supports_emotion_or_style_control` 按加载模型动态置
   False（1.7B 路径仍为 True）。
 - CUDA Graph 捕获失败时自动回退 eager fast 循环（日志一条 warning），语义不变。
+
+## 模型 × 并发对比（同日补充）
+
+见 `model-cmp/COMPARISON.md`：1.7B 与 0.6B 在 fast 路径下 c=1 同速（RTF p90 均 0.58），并发被 _infer_lock 串行化（吞吐恒定 ~0.11 req/s，c≥2 单请求 RTF≈c×单流）。
