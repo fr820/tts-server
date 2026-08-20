@@ -56,7 +56,7 @@ as a mid-stream failure, not a clean end of audio.
 | Backend | Streaming output | Streaming input | CUDA | CPU | Voice cloning | Style control | Status |
 |---|---|---|---|---|---|---|---|
 | mock  | native   | yes | no  | yes | no | no  | stable (dev/CI) |
-| qwen3 | emulated | no  | yes | yes | no | yes | experimental — unverified on real GPU hardware |
+| qwen3 | emulated | no  | yes | yes | no | 0.6B: no, 1.7B: yes | verified on A10 — RTF p90 0.58 (single stream, realtime) |
 
 ## Quickstart (mock, no GPU)
 
@@ -74,9 +74,18 @@ deterministic mock backend — no GPU or model download required.
 
 The `qwen3` backend wraps the [`qwen-tts`](https://pypi.org/project/qwen-tts/)
 PyPI package (`qwen_tts.Qwen3TTSModel`), not a generic
-transformers `AutoModel`. It is CUDA-first with a CPU fallback and is
-**code-complete but unverified on real GPU hardware** — the development
-machine for this project has no GPU.
+transformers `AutoModel`. It is CUDA-first with a CPU fallback. Default model
+is `Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice` (realtime-first); the 1.7B variant
+is selectable via `backend.model_path` and additionally honors `instruct`
+style control.
+
+**Verified on real hardware** (NVIDIA A10, bf16, 2026-08-20 — numbers and
+methodology in `reports/2026-08-20/`): single-stream **RTF p90 0.58**
+(< 1.0, realtime) over a 30-request English benchmark, 0 failures, ~4.2 GB
+device memory, thanks to a CUDA-graphed sub-talker decode path
+(`backend.options.fast_subtalker`, on by default, semantics-preserving;
+set `false` for the stock qwen-tts path — RTF p90 1.47). Streaming output
+is honestly labeled `emulated`: audio is fully synthesized, then sliced.
 
 ```bash
 uv sync --extra qwen3
@@ -85,7 +94,7 @@ TTS_BACKEND=qwen3 uv run uvicorn tts_server.main:app --port 8000
 
 The `qwen3` extra installs `torch`, `transformers`, `accelerate`, and
 `qwen-tts`. Model weights are downloaded from Hugging Face on first load
-(default `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice`; override via
+(default `Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice`; override via
 `backend.model_path` in the config file, see below) — this requires network
 access and disk space, and is not something CI or this repo's tests
 exercise.
@@ -100,6 +109,9 @@ backend:
   model_path: null      # e.g. "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice"
   compile: false
   warmup: true
+  options:
+    fast_subtalker: true   # CUDA-graphed sub-talker decode; false = stock qwen-tts path
+    subtalker_greedy: false
 ```
 
 `speed` is currently ignored by the `qwen3` backend — the upstream
